@@ -1,0 +1,13 @@
+.venv/
+**/__pycache__/
+**/*.py[cod]
+Fontend/node_modules/
+Fontend/dist/
+Backend/vector_db/
+Backend/chunks.jsonl
+Backend/chunks_with_embeddings.jsonl
+Backend/Documents/
+*.log
+.env
+.env.*
+!.env.example

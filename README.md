@@ -35,7 +35,7 @@ Backend/
   chunk_documents.py    PDF parsing and overlapping chunk creation
   vector_database.py    ChromaDB loading and querying
   requirements.txt      Python dependencies
-Fontend/
+Frontend/
   src/App.jsx           React application and API client
   src/App.css           Application styling
   package.json          Frontend scripts and dependencies
@@ -71,7 +71,7 @@ The API is available at `http://127.0.0.1:8000`. Interactive API documentation i
 ### Frontend
 
 ```powershell
-cd Fontend
+cd Frontend
 npm install
 npm run dev -- --host 127.0.0.1 --port 5174
 ```
@@ -113,7 +113,7 @@ Content-Type: application/json
 ## Development Checks
 
 ```powershell
-cd Fontend
+cd Frontend
 npm run lint
 npm run build
 ```

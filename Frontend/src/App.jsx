@@ -1,31 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import './App.css'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
-const suggestedQuestions = [
-  'How do I configure accrual rules?',
-  'What are the steps to build an accrual policy?',
-  'How do I create a pay rule?',
-]
 
 function App() {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
   const [results, setResults] = useState([])
-  const [history, setHistory] = useState([])
   const [activeTab, setActiveTab] = useState('answer')
-  const [status, setStatus] = useState('checking')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/health`)
-      .then((response) => {
-        if (!response.ok) throw new Error('API unavailable')
-        setStatus('online')
-      })
-      .catch(() => setStatus('offline'))
-  }, [])
 
   async function submitQuestion(nextQuestion = question) {
     const trimmedQuestion = nextQuestion.trim()
@@ -45,10 +29,8 @@ function App() {
       if (!response.ok) throw new Error(payload.detail || 'The document service could not answer.')
       setAnswer(payload.answer)
       setResults(payload.results || [])
-      setHistory((items) => [trimmedQuestion, ...items.filter((item) => item !== trimmedQuestion)].slice(0, 5))
     } catch (requestError) {
       setError(requestError.message)
-      setStatus('offline')
     } finally {
       setLoading(false)
     }

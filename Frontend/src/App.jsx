@@ -99,7 +99,7 @@ function App() {
                   Answer
                 </button>
                 <button className={activeTab === 'sources' ? 'tab active' : 'tab'} onClick={() => setActiveTab('sources')}>
-                  Sources <span>{results.length || ''}</span>
+                  Related PDFs <span>{results.length || ''}</span>
                 </button>
               </div>
 
@@ -109,7 +109,7 @@ function App() {
                   <p>Reading the most relevant passages...</p>
                 </div>
               ) : activeTab === 'answer' ? (
-                <AnswerView answer={answer} />
+                <AnswerView answer={answer} results={results} />
               ) : (
                 <SourcesView results={results} />
               )}
@@ -121,7 +121,7 @@ function App() {
   )
 }
 
-function AnswerView({ answer }) {
+function AnswerView({ answer, results }) {
   if (!answer) {
     return (
       <div className="empty-answer" aria-live="polite" />
@@ -130,16 +130,68 @@ function AnswerView({ answer }) {
 
   return (
     <article className="answer-view">
-      <div className="answer-label">SYNTHESIZED FROM YOUR DOCUMENTS</div>
+      <div className="answer-label">SOLUTION FROM YOUR DOCUMENTS</div>
       <div className="answer-copy">
         {answer.split('\n').map((line, index) => (
           <p key={`${line}-${index}`}>{line || '\u00a0'}</p>
         ))}
       </div>
+      <StepsPanel answer={answer} />
+      <RelatedDocuments results={results} />
       <div className="answer-note">
         <span>◈</span> Answer generated from retrieved passages and reranked for relevance.
       </div>
     </article>
+  )
+}
+
+function StepsPanel({ answer }) {
+  const steps = answer
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => /^\d+[.)]\s+/.test(line))
+
+  if (!steps.length) return null
+
+  return (
+    <section className="steps-panel">
+      <div className="answer-label">STEPS TO FOLLOW</div>
+      <ol>
+        {steps.map((step) => <li key={step}>{step.replace(/^\d+[.)]\s+/, '')}</li>)}
+      </ol>
+    </section>
+  )
+}
+
+function RelatedDocuments({ results }) {
+  const documents = [...new Map(
+    results
+      .map((result) => [result.metadata?.source, result])
+      .filter(([source]) => source),
+  ).values()]
+
+  if (!documents.length) return null
+
+  return (
+    <section className="related-documents">
+      <div className="answer-label">RELATED PDFS</div>
+      <div className="related-list">
+        {documents.map((result) => {
+          const source = result.metadata.source
+          const documentUrl = `${API_URL}/api/documents/${encodeURIComponent(source)}`
+          return (
+            <a className="related-document" href={documentUrl} target="_blank" rel="noreferrer" key={source}>
+              <span className="pdf-mark">PDF</span>
+              <span className="related-document-copy">
+                <strong>{source}</strong>
+                <small>Relevant passage · page {result.metadata?.page || '—'}</small>
+              </span>
+              <span className="document-arrow">↗</span>
+            </a>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 

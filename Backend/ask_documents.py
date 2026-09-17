@@ -85,7 +85,9 @@ def build_prompt(question: str, results: list[dict[str, Any]]) -> str:
         "You are a document question-answering assistant. "
         "Answer only from the context below. "
         "If the answer is not in the context, say you could not find it. "
-        "Give a concise answer and cite the source filename and page number.\n\n"
+            "Format the response exactly with these headings: Solution, Steps to follow, "
+            "and Important notes. Under Steps to follow, provide a short numbered list. "
+            "Cite the source filename and page number when relevant.\n\n"
         f"Question: {question}\n\nContext:\n{context}\n"
     )
 

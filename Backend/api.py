@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -31,6 +33,7 @@ except ImportError:
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_DIR = BASE_DIR / "vector_db"
+DOCUMENTS_DIR = BASE_DIR / "Documents"
 COLLECTION = os.getenv("COLLECTION", "ukg_documents")
 
 app = FastAPI(title="UKG Document Intelligence API", version="1.0.0")
@@ -78,6 +81,16 @@ def retrieve(request: QueryRequest) -> list[dict[str, Any]]:
 @app.get("/api/health")
 def health() -> dict[str, Any]:
     return {"status": "ok", "service": "ukg-document-api"}
+
+
+@app.get("/api/documents/{filename}")
+def document(filename: str) -> FileResponse:
+    requested_file = (DOCUMENTS_DIR / Path(filename).name).resolve()
+    if requested_file.parent != DOCUMENTS_DIR.resolve() or requested_file.suffix.lower() != ".pdf":
+        raise HTTPException(status_code=400, detail="Only PDF documents are available")
+    if not requested_file.is_file():
+        raise HTTPException(status_code=404, detail="Document not found")
+    return FileResponse(requested_file, media_type="application/pdf", filename=requested_file.name)
 
 
 @app.post("/api/search", response_model=SearchResponse)

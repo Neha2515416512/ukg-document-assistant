@@ -582,6 +582,88 @@ button {
   margin-right: 7px;
 }
 
+.steps-panel,
+.related-documents {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-100);
+}
+
+.steps-panel ol {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+  color: var(--ink-900);
+  line-height: 1.65;
+}
+
+.steps-panel li::marker {
+  color: var(--teal-500);
+  font-weight: 700;
+}
+
+.related-list {
+  display: grid;
+  gap: 8px;
+}
+
+.related-document {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(15, 47, 71, 0.08);
+  border-radius: 10px;
+  color: var(--ink-900);
+  text-decoration: none;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.related-document:hover {
+  transform: translateX(4px);
+  border-color: rgba(62, 212, 223, 0.5);
+  box-shadow: 0 8px 18px rgba(17, 57, 79, 0.08);
+}
+
+.pdf-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(242, 117, 117, 0.12);
+  color: #a24b4b;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.related-document-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  flex: 1;
+}
+
+.related-document-copy strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+}
+
+.related-document-copy small {
+  color: var(--gray-500);
+  font-size: 0.7rem;
+}
+
+.document-arrow {
+  color: var(--teal-500);
+  font-size: 1.2rem;
+}
+
 .sources-view {
   display: grid;
   gap: 0;

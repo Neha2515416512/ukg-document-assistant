@@ -59,6 +59,11 @@ function App() {
 
       <main className="single-page-shell">
         <section className="chat-panel">
+          <div className="motion-stage" aria-hidden="true">
+            <div className="document-sheet sheet-back"><span>DOC / 03</span><i /></div>
+            <div className="document-sheet sheet-middle"><span>RETRIEVAL</span><i /><i /></div>
+            <div className="document-sheet sheet-front"><span>ASK</span><strong>?</strong></div>
+          </div>
           <h2 className="chat-title">Ask your documents.</h2>
 
           <div className="query-wrap">

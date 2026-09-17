@@ -68,6 +68,8 @@ python -m uvicorn api:app --reload --host 127.0.0.1 --port 8000
 
 The API is available at `http://127.0.0.1:8000`. Interactive API documentation is available at `http://127.0.0.1:8000/docs`.
 
+The backend defaults to the locally installed `orca-mini:latest` model for faster responses. Set `LLM=qwen2.5:7b` before starting the API if you prefer the larger model.
+
 ### Frontend
 
 ```powershell

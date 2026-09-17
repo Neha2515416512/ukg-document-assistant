@@ -23,7 +23,7 @@ function App() {
       const response = await fetch(`${API_URL}/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: trimmedQuestion, top_k: 5, candidate_k: 20 }),
+        body: JSON.stringify({ question: trimmedQuestion, top_k: 3, candidate_k: 8 }),
       })
       const payload = await response.json()
       if (!response.ok) throw new Error(payload.detail || 'The document service could not answer.')

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -14,9 +16,21 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 
 DEFAULT_EMBEDDING_MODEL = "sentence-transformers/bert-base-nli-mean-tokens"
 DEFAULT_RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
-DEFAULT_LLM = "qwen2.5:7b"
+DEFAULT_LLM = os.getenv("LLM", "orca-mini:latest")
 DEFAULT_COLLECTION = "ukg_documents"
 ANSI_ESCAPE = re.compile(r"\x1B(?:[@-_][0-?]*[ -/]*[@-~])")
+
+
+@lru_cache(maxsize=4)
+def get_embedding_model(model_name: str) -> SentenceTransformer:
+    """Load an embedding model once and reuse it across requests."""
+    return SentenceTransformer(model_name)
+
+
+@lru_cache(maxsize=4)
+def get_reranker_model(model_name: str) -> CrossEncoder:
+    """Load a reranker once and reuse it across requests."""
+    return CrossEncoder(model_name)
 
 
 def retrieve_and_rerank(
@@ -38,7 +52,7 @@ def retrieve_and_rerank(
     if collection_size == 0:
         raise ValueError("The vector collection is empty. Ingest embeddings first.")
 
-    embedding_model = SentenceTransformer(embedding_model_name)
+    embedding_model = get_embedding_model(embedding_model_name)
     query_embedding = embedding_model.encode(
         question,
         normalize_embeddings=True,
@@ -61,7 +75,7 @@ def retrieve_and_rerank(
             search_results["distances"][0],
         )
     ]
-    reranker = CrossEncoder(reranker_model_name)
+    reranker = get_reranker_model(reranker_model_name)
     scores = reranker.predict([(question, item["text"]) for item in candidates])
     for item, score in zip(candidates, scores):
         item["rerank_score"] = float(score)
@@ -78,7 +92,7 @@ def build_prompt(question: str, results: list[dict[str, Any]]) -> str:
     context = "\n\n".join(
         f"Source: {result['metadata'].get('source', 'unknown')}, "
         f"page {result['metadata'].get('page', 'unknown')}\n"
-        f"{result['text']}"
+        f"{result['text'][:1800]}"
         for result in results
     )
     return (
@@ -87,7 +101,8 @@ def build_prompt(question: str, results: list[dict[str, Any]]) -> str:
         "If the answer is not in the context, say you could not find it. "
             "Format the response exactly with these headings: Solution, Steps to follow, "
             "and Important notes. Under Steps to follow, provide a short numbered list. "
-            "Cite the source filename and page number when relevant.\n\n"
+            "Cite the source filename and page number when relevant. Keep the full response "
+            "under 180 words and avoid repeating the context.\n\n"
         f"Question: {question}\n\nContext:\n{context}\n"
     )
 

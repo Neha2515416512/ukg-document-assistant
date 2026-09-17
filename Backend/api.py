@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
-from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -19,6 +18,8 @@ try:
         DEFAULT_RERANKER_MODEL,
         ask_ollama,
         build_prompt,
+        get_embedding_model,
+        get_reranker_model,
         retrieve_and_rerank,
     )
 except ImportError:
@@ -28,6 +29,8 @@ except ImportError:
         DEFAULT_RERANKER_MODEL,
         ask_ollama,
         build_prompt,
+        get_embedding_model,
+        get_reranker_model,
         retrieve_and_rerank,
     )
 
@@ -46,10 +49,17 @@ app.add_middleware(
 )
 
 
+@app.on_event("startup")
+def preload_retrieval_models() -> None:
+    """Warm retrieval models before the first question arrives."""
+    get_embedding_model(DEFAULT_EMBEDDING_MODEL)
+    get_reranker_model(DEFAULT_RERANKER_MODEL)
+
+
 class QueryRequest(BaseModel):
     question: str = Field(min_length=2, max_length=2000)
-    top_k: int = Field(default=5, ge=1, le=20)
-    candidate_k: int = Field(default=20, ge=1, le=100)
+    top_k: int = Field(default=3, ge=1, le=20)
+    candidate_k: int = Field(default=8, ge=1, le=100)
 
 
 class SearchResponse(BaseModel):
